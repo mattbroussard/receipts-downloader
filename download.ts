@@ -6,6 +6,7 @@ import { google, gmail_v1 } from "googleapis";
 import mkdirp from "mkdirp";
 import { promises as fs } from "fs";
 import path from "path";
+import pdf from "html-pdf";
 
 inquirer.registerPrompt("datetime", require("inquirer-datepicker-prompt"));
 
@@ -113,7 +114,7 @@ async function runImporter(
     q: `${importer.params.q} ${dateQuery}`,
 
     // TODO: paging
-    maxResults: 100,
+    maxResults: 1,
   };
   console.log("Gmail API message list params:", params);
 
@@ -173,6 +174,23 @@ async function runImporterOnMessage(
   if (config.artifactTypes.includes("html")) {
     const fname = path.join(config.outDir, metadata.filename + ".html");
     await fs.writeFile(fname, importerMessage.html);
+  }
+
+  if (config.artifactTypes.includes("pdf")) {
+    const fname = path.join(config.outDir, metadata.filename + ".pdf");
+    console.log("Generating PDF", fname);
+    await new Promise((resolve) =>
+      pdf
+        .create(importerMessage.html, {
+          // TODO: figure out something better here
+          // This looks ok, but is a weird non-standard PDF size
+          // Can't figure out how to configure DPI, which seems to default 72 (but might be device dependent)
+          // https://github.com/ariya/phantomjs/issues/12685
+          width: "1000px",
+          height: "1300px",
+        })
+        .toFile(fname, resolve)
+    );
   }
 }
 
