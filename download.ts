@@ -2,6 +2,7 @@ import _ from "lodash";
 import { OAuth2Client, authorizeAsync } from "./google_auth";
 import inquirer from "inquirer";
 import { ALL_IMPORTERS, Importer } from "./importers/importer";
+import { google, gmail_v1 } from "googleapis";
 
 inquirer.registerPrompt("datetime", require("inquirer-datepicker-prompt"));
 
@@ -68,7 +69,26 @@ async function runImporter(
   config: Config,
   auth: OAuth2Client
 ) {
-  // ...
+  console.log("Running importer:", importer.name);
+
+  const dateSeconds = (date: Date) => Math.floor(date.getTime() / 1000);
+  const dateQuery = `after:${dateSeconds(
+    config.startDate
+  )} before:${dateSeconds(config.endDate)}`;
+  const params: gmail_v1.Params$Resource$Users$Messages$List = {
+    userId: "me",
+    ...importer.params,
+    q: `${importer.params.q} ${dateQuery}`,
+    maxResults: 100,
+  };
+  console.log("Gmail API message list params:", params);
+
+  const gmail = google.gmail({ version: "v1", auth });
+  const messagesResp = await gmail.users.messages.list(params);
+  const messages = messagesResp.data.messages;
+
+  // TODO: implement rest
+  console.log(messages);
 }
 
 async function main() {
