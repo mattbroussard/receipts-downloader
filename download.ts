@@ -131,15 +131,28 @@ async function runImporter(
     userId: "me",
     ...importer.params,
     q: `${importer.params.q} ${dateQuery}`,
-    // TODO: paging
   };
   console.log("Gmail API message list params:", params);
 
   // List messages
   const gmail = google.gmail({ version: "v1", auth });
-  const messageListResp = await gmail.users.messages.list(params);
-  const messageIds = _.map(messageListResp.data.messages || [], "id");
-  console.log("Listed", messageIds.length, "messages.");
+  let messageIds: string[] = [];
+  let nextPageToken: string | undefined;
+  do {
+    if (nextPageToken) {
+      console.log("Requesting next page... nextPageToken:", nextPageToken);
+    }
+
+    const messageListResp = await gmail.users.messages.list({
+      ...params,
+      pageToken: nextPageToken,
+    });
+    const newMessageIds = _.map(messageListResp.data.messages || [], "id");
+    console.log("Listed", newMessageIds.length, "messages.");
+
+    messageIds = messageIds.concat(newMessageIds);
+    nextPageToken = messageListResp.data.nextPageToken;
+  } while (nextPageToken);
 
   // Download each message
   const messageRespPromises = messageIds.map(async (id) => {
