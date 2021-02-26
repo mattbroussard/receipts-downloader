@@ -4,6 +4,7 @@ export class DummyImporter implements Importer {
   name = "dummy";
   params = {
     q: 'from:(no-reply@doordash.com) subject:("Order Confirmation")',
+    maxResults: 1,
   };
 
   extractMetadataFromMessage(message: ImporterMessage) {

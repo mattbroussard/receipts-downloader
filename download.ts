@@ -131,9 +131,7 @@ async function runImporter(
     userId: "me",
     ...importer.params,
     q: `${importer.params.q} ${dateQuery}`,
-
     // TODO: paging
-    maxResults: 1,
   };
   console.log("Gmail API message list params:", params);
 
