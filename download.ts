@@ -24,7 +24,7 @@ function startOfCurrentMonth() {
   return date;
 }
 
-type ArtifactType = "json" | "html" | "pdf";
+type ArtifactType = "json" | "html" | "pdf" | "txt";
 
 interface Config {
   outDir: string;
@@ -51,7 +51,7 @@ function b64decode(
 
 async function askForConfig() {
   const importerNames = _.map(ALL_IMPORTERS, "name");
-  const outTypes = ["json", "html", "pdf"];
+  const outTypes = ["json", "html", "pdf", "txt"];
   const configAnswers = await inquirer.prompt<Config>([
     {
       type: "input",
@@ -194,6 +194,10 @@ async function runImporterOnMessage(
     files: getArtifactFilenames(metadata, config),
   };
 
+  if (!importerMessage.text) {
+    delete summaryEntry.files["txt"];
+  }
+
   if (summaryEntry.files.json) {
     const json = {
       ...summaryEntry,
@@ -208,6 +212,11 @@ async function runImporterOnMessage(
   if (summaryEntry.files.html) {
     const fname = path.join(config.outDir, summaryEntry.files.html);
     await fs.writeFile(fname, importerMessage.html);
+  }
+
+  if (summaryEntry.files.txt && importerMessage.text) {
+    const fname = path.join(config.outDir, summaryEntry.files.txt);
+    await fs.writeFile(fname, importerMessage.text);
   }
 
   if (summaryEntry.files.pdf) {
