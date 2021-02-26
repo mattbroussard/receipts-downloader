@@ -1,5 +1,6 @@
 import type { gmail_v1 } from "googleapis";
 import { DummyImporter } from "./dummy_importer";
+import { DoordashImporter } from "./doordash";
 
 export interface ImporterMessage {
   html: string;
@@ -16,6 +17,8 @@ export interface ImporterResult {
 
   date: Date;
   amt: string;
+
+  deliveryAddress?: string;
 }
 
 export interface Importer {
@@ -25,4 +28,7 @@ export interface Importer {
   extractMetadataFromMessage(message: ImporterMessage): ImporterResult | null;
 }
 
-export const ALL_IMPORTERS: Importer[] = [new DummyImporter()];
+export const ALL_IMPORTERS: Importer[] = [
+  new DummyImporter(),
+  new DoordashImporter(),
+];
