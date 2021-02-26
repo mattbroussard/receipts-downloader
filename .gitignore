@@ -6,3 +6,5 @@ node_modules
 credentials.json
 token.json
 out
+
+receipts_downloader_todo.txt

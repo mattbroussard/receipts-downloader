@@ -1,7 +1,12 @@
 import _ from "lodash";
 import { OAuth2Client, authorizeAsync } from "./google_auth";
 import inquirer from "inquirer";
-import { ALL_IMPORTERS, Importer, ImporterMessage } from "./importers/importer";
+import {
+  ALL_IMPORTERS,
+  Importer,
+  ImporterMessage,
+  ImporterResult,
+} from "./importers/importer";
 import { google, gmail_v1 } from "googleapis";
 import mkdirp from "mkdirp";
 import { promises as fs } from "fs";
@@ -19,12 +24,21 @@ function startOfCurrentMonth() {
   return date;
 }
 
+type ArtifactType = "json" | "html" | "pdf";
+
 interface Config {
   outDir: string;
   importers: string[];
   startDate: Date;
   endDate: Date;
-  artifactTypes: ("json" | "html" | "pdf")[];
+  artifactTypes: ArtifactType[];
+}
+
+interface SummaryEntry {
+  messageId: string;
+  importerName: string;
+  metadata: ImporterResult;
+  files: { [T in ArtifactType]?: string };
 }
 
 function b64decode(
@@ -94,14 +108,14 @@ function buildImporterMessage(
 
   const date = new Date(Number(message.internalDate));
 
-  return { rawMessage: message, text, html, subject, date };
+  return { subject, date, text, html, rawMessage: message };
 }
 
 async function runImporter(
   importer: Importer,
   config: Config,
   auth: OAuth2Client
-) {
+): Promise<SummaryEntry[]> {
   console.log("Running importer:", importer.name);
 
   const dateSeconds = (date: Date) => Math.floor(date.getTime() / 1000);
@@ -134,18 +148,32 @@ async function runImporter(
   const messages = _.map(messageResps, "data");
 
   // Process each message for metadata extraction
+  const summary: SummaryEntry[] = [];
   for (const message of messages) {
-    await runImporterOnMessage(message, importer, config);
+    const summaryEntry = await runImporterOnMessage(message, importer, config);
+    if (summaryEntry) {
+      summary.push(summaryEntry);
+    }
   }
 
   console.log("Done running importer", importer.name);
+  return summary;
+}
+
+function getArtifactFilenames(
+  metadata: ImporterResult,
+  config: Config
+): SummaryEntry["files"] {
+  return _.fromPairs(
+    config.artifactTypes.map((ext) => [ext, `${metadata.filename}.${ext}`])
+  );
 }
 
 async function runImporterOnMessage(
   message: gmail_v1.Schema$Message,
   importer: Importer,
   config: Config
-) {
+): Promise<SummaryEntry | undefined> {
   const importerMessage = buildImporterMessage(message);
   const metadata = importer.extractMetadataFromMessage(importerMessage);
   if (!metadata) {
@@ -159,25 +187,31 @@ async function runImporterOnMessage(
 
   console.log("Imported", metadata.filename, "from message", message.id);
 
-  if (config.artifactTypes.includes("json")) {
+  const summaryEntry: SummaryEntry = {
+    importerName: importer.name,
+    metadata,
+    messageId: message.id!,
+    files: getArtifactFilenames(metadata, config),
+  };
+
+  if (summaryEntry.files.json) {
     const json = {
-      metadata,
-      messageId: message.id,
+      ...summaryEntry,
       importerMessageObj: _.omit(importerMessage, "rawMessage"),
       gmailApiMessageObj: message,
     };
 
-    const fname = path.join(config.outDir, metadata.filename + ".json");
+    const fname = path.join(config.outDir, summaryEntry.files.json);
     await fs.writeFile(fname, JSON.stringify(json, undefined, 2));
   }
 
-  if (config.artifactTypes.includes("html")) {
-    const fname = path.join(config.outDir, metadata.filename + ".html");
+  if (summaryEntry.files.html) {
+    const fname = path.join(config.outDir, summaryEntry.files.html);
     await fs.writeFile(fname, importerMessage.html);
   }
 
-  if (config.artifactTypes.includes("pdf")) {
-    const fname = path.join(config.outDir, metadata.filename + ".pdf");
+  if (summaryEntry.files.pdf) {
+    const fname = path.join(config.outDir, summaryEntry.files.pdf);
     console.log("Generating PDF", fname);
     await new Promise((resolve) =>
       pdf
@@ -192,6 +226,8 @@ async function runImporterOnMessage(
         .toFile(fname, resolve)
     );
   }
+
+  return summaryEntry;
 }
 
 async function main() {
@@ -207,9 +243,17 @@ async function main() {
   await mkdirp(config.outDir);
 
   // TODO: paralellize?
+  let summary: SummaryEntry[] = [];
   for (const importer of importersToRun) {
-    await runImporter(importer, config, auth);
+    const importerSummary = await runImporter(importer, config, auth);
+    summary = summary.concat(importerSummary);
   }
+
+  console.log("Writing summary JSON file...");
+  const summaryFilename = path.join(config.outDir, "download_summary.json");
+  await fs.writeFile(summaryFilename, JSON.stringify(summary, undefined, 2));
+
+  console.log("Done, exiting.");
 }
 
 if (require.main === module) {
