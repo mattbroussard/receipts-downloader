@@ -6,6 +6,7 @@
   "scripts": {
     "main": "ts-node-transpile-only index.ts",
     "download": "ts-node-transpile-only download.ts",
+    "test_importer": "ts-node-transpile-only test_importer.ts",
     "tsc": "tsc --noEmit"
   },
   "author": "matt@mattb.io",

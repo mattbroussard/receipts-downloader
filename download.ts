@@ -41,6 +41,11 @@ interface SummaryEntry {
   files: { [T in ArtifactType]?: string };
 }
 
+export interface SingleMessageJsonFile extends SummaryEntry {
+  importerMessageObj: Omit<ImporterMessage, "rawMessage">;
+  gmailApiMessageObj: gmail_v1.Schema$Message;
+}
+
 function b64decode(
   encoded: string | null | undefined
 ): string | null | undefined {
@@ -199,7 +204,7 @@ async function runImporterOnMessage(
   }
 
   if (summaryEntry.files.json) {
-    const json = {
+    const json: SingleMessageJsonFile = {
       ...summaryEntry,
       importerMessageObj: _.omit(importerMessage, "rawMessage"),
       gmailApiMessageObj: message,
