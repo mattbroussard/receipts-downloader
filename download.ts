@@ -147,17 +147,26 @@ async function runImporter(
       ...params,
       pageToken: nextPageToken,
     });
-    const newMessageIds = _.map(messageListResp.data.messages || [], "id");
+    const newMessageIds = _.map(
+      messageListResp.data.messages || [],
+      (m) => m.id!
+    );
     console.log("Listed", newMessageIds.length, "messages.");
 
     messageIds = messageIds.concat(newMessageIds);
-    nextPageToken = messageListResp.data.nextPageToken;
+    nextPageToken = messageListResp.data.nextPageToken || undefined;
   } while (nextPageToken);
 
+  console.log("Got", messageIds.length, "total messages.");
+
   // Download each message
-  const messageRespPromises = messageIds.map(async (id) => {
+  const messageRespPromises = messageIds.map(async (id, idx) => {
     const resp = await gmail.users.messages.get({ id: id!, userId: "me" });
-    console.log("Downloaded message with id", id);
+    console.log(
+      "Downloaded message with id",
+      id,
+      `(${idx + 1} of ${messageIds.length})`
+    );
     return resp;
   });
   const messageResps = await Promise.all(messageRespPromises);
@@ -165,11 +174,20 @@ async function runImporter(
 
   // Process each message for metadata extraction
   const summary: SummaryEntry[] = [];
+  let extractIdx = 0;
   for (const message of messages) {
     const summaryEntry = await runImporterOnMessage(message, importer, config);
     if (summaryEntry) {
       summary.push(summaryEntry);
     }
+
+    console.log(
+      "Done processing message",
+      extractIdx + 1,
+      "of",
+      messages.length
+    );
+    extractIdx++;
   }
 
   console.log("Done running importer", importer.name);
@@ -201,7 +219,12 @@ async function runImporterOnMessage(
     return;
   }
 
-  console.log("Imported", metadata.filename, "from message", message.id);
+  console.log(
+    "Imported metadata",
+    metadata.filename,
+    "from message",
+    message.id
+  );
 
   const summaryEntry: SummaryEntry = {
     importerName: importer.name,
