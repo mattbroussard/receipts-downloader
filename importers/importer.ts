@@ -1,6 +1,7 @@
 import type { gmail_v1 } from "googleapis";
 import { DummyImporter } from "./dummy_importer";
 import { DoordashImporter } from "./doordash";
+import { CaviarImporter } from "./caviar";
 
 export interface ImporterMessage {
   html: string;
@@ -32,4 +33,5 @@ export interface Importer {
 export const ALL_IMPORTERS: Importer[] = [
   new DummyImporter(),
   new DoordashImporter(),
+  new CaviarImporter(),
 ];

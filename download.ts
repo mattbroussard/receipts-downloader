@@ -155,6 +155,11 @@ async function runImporter(
 
     messageIds = messageIds.concat(newMessageIds);
     nextPageToken = messageListResp.data.nextPageToken || undefined;
+
+    if (params.maxResults === 1) {
+      console.log("Breaking loop after 1 message for test purposes");
+      break;
+    }
   } while (nextPageToken);
 
   console.log("Got", messageIds.length, "total messages.");
