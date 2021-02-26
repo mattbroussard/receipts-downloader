@@ -9,6 +9,6 @@ A collection of scripts for downloading receipts from Gmail and combining them i
 3. Click the `Enable the Gmail API` button here to create a Google Cloud Platform project and get an API key. Download the resulting `credentials.json` file and place it in the repo (don't worry, it's `.gitignore`'d).
 4. `npm run download`
 
-- The first run will provide instructions on how to get an initial OAuth token, after which it is stored in another file, `token.json` and you won't have to do that again.
+    - The first run will provide instructions on how to get an initial OAuth token, after which it is stored in another file, `token.json` and you won't have to do that again.
 
 5. Follow interactive prompts
