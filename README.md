@@ -12,3 +12,5 @@ A collection of scripts for downloading receipts from Gmail and combining them i
     - The first run will provide instructions on how to get an initial OAuth token, after which it is stored in another file, `token.json` and you won't have to do that again.
 
 5. Follow interactive prompts
+
+![image](https://user-images.githubusercontent.com/3347176/109277614-6b2bd300-77cc-11eb-855a-be1751119d10.png)
