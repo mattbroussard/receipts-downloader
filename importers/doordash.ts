@@ -19,6 +19,12 @@ export class DoordashImporter implements Importer {
     }
     const amt = totalMatches[1];
 
+    // Get vendor name
+    const vendorMatches = /Order Confirmation for .* from (.*$)/.exec(
+      message.subject
+    );
+    const vendorName = vendorMatches ? vendorMatches[1].trim() : "unknown";
+
     // Get delivery address
     // TODO: handle pickup
     const addrMatches = /Your receipt\s*\n([^\n]+)\n/gm.exec(message.text);
@@ -33,6 +39,7 @@ export class DoordashImporter implements Importer {
       date,
       amt,
       deliveryAddress,
+      vendorName,
     };
   }
 }

@@ -19,6 +19,7 @@ export interface ImporterResult {
   amt: string;
 
   deliveryAddress?: string;
+  vendorName?: string;
 }
 
 export interface Importer {
