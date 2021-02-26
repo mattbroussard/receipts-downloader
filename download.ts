@@ -95,15 +95,41 @@ async function askForConfig() {
   return configAnswers;
 }
 
+function findMessagePart(
+  message: { payload?: gmail_v1.Schema$MessagePart }, // gmail_v1.Schema$Message,
+  mimeType: string
+): gmail_v1.Schema$MessagePart | undefined {
+  const payload = message.payload;
+  if (!payload) {
+    return;
+  }
+
+  if (payload.mimeType === mimeType) {
+    return payload;
+  }
+
+  // Some messages only have one top-level MessagePart and no children; this also serves as a base
+  // case for the recursion below when we hit a leaf
+  if (!payload.parts) {
+    return;
+  }
+
+  for (const part of payload.parts) {
+    const foundPart = findMessagePart({ payload: part }, mimeType);
+    if (foundPart) {
+      return foundPart;
+    }
+  }
+}
+
 function buildImporterMessage(
   message: gmail_v1.Schema$Message
 ): ImporterMessage {
-  const parts = message.payload!.parts;
-
-  const plainPart = _.find(parts, (part) => part.mimeType === "text/plain");
+  const plainPart = findMessagePart(message, "text/plain");
   const text = b64decode(plainPart?.body?.data!) || undefined;
 
-  const htmlPart = _.find(parts, (part) => part.mimeType === "text/html");
+  // Assumption: Every email these days has an HTML part, but not every email sends a plaintext part
+  const htmlPart = findMessagePart(message, "text/html");
   const html = b64decode(htmlPart?.body?.data!)!;
 
   const headers = message.payload!.headers;
