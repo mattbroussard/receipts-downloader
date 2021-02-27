@@ -57,3 +57,7 @@ body {
   min-width: 450px;
   padding-right: 30px;
 }
+
+span.vendor-name {
+  color: grey;
+}
