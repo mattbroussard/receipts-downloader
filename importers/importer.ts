@@ -3,6 +3,7 @@ import { DummyImporter } from "./dummy_importer";
 import { DoordashImporter } from "./doordash";
 import { CaviarImporter } from "./caviar";
 import { GrubhubImporter } from "./grubhub";
+import { UberEatsImporter } from "./ubereats";
 
 export interface ImporterMessage {
   html: string;
@@ -36,4 +37,5 @@ export const ALL_IMPORTERS: Importer[] = [
   new DoordashImporter(),
   new CaviarImporter(),
   new GrubhubImporter(),
+  new UberEatsImporter(),
 ];
