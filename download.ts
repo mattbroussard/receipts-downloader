@@ -11,7 +11,7 @@ import { google, gmail_v1 } from "googleapis";
 import mkdirp from "mkdirp";
 import { promises as fs } from "fs";
 import path from "path";
-import pdf from "html-pdf";
+import { generatePdf } from "./pdf";
 
 inquirer.registerPrompt("datetime", require("inquirer-datepicker-prompt"));
 
@@ -34,11 +34,15 @@ interface Config {
   artifactTypes: ArtifactType[];
 }
 
-interface SummaryEntry {
+export interface SummaryEntry {
   messageId: string;
   importerName: string;
   metadata: ImporterResult;
   files: { [T in ArtifactType]?: string };
+
+  // These are not programmatically populated, but can be manually added for consumption by
+  // the `collate` script
+  exclude?: boolean;
 }
 
 export interface SingleMessageJsonFile extends SummaryEntry {
@@ -297,18 +301,7 @@ async function runImporterOnMessage(
       importer.transformHTMLForPDF || ((msg: ImporterMessage) => msg.html);
     const htmlForPdf = transformFn(importerMessage);
 
-    await new Promise((resolve) =>
-      pdf
-        .create(htmlForPdf, {
-          // TODO: figure out something better here
-          // This looks ok, but is a weird non-standard PDF size
-          // Can't figure out how to configure DPI, which seems to default 72 (but might be device dependent)
-          // https://github.com/ariya/phantomjs/issues/12685
-          width: "1000px",
-          height: "1300px",
-        })
-        .toFile(fname, resolve)
-    );
+    await generatePdf(htmlForPdf, fname);
   }
 
   return summaryEntry;
