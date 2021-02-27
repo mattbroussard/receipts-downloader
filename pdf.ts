@@ -12,6 +12,8 @@ export async function generatePdf(
         // This looks ok, but is a weird non-standard PDF size
         // Can't figure out how to configure DPI, which seems to default 72 (but might be device dependent)
         // https://github.com/ariya/phantomjs/issues/12685
+        //
+        // PhantomJS also has some other weird issues, like font family and weight don't seem to be respected.
         width: "1000px",
         height: "1300px",
         ...options,
