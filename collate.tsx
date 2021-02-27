@@ -8,6 +8,7 @@ import React from "react";
 import ReactDOMServer from "react-dom/server";
 import { generatePdf } from "./pdf";
 import { CoverPage } from "./cover_page";
+import PDFMerger from "pdf-merger-js";
 
 interface Config {
   inDir: string;
@@ -55,7 +56,10 @@ async function main() {
   // Filter and sort
   const entries = _.sortBy(
     summary.filter(
-      (entry) => !entry.exclude && config.importers.includes(entry.importerName)
+      (entry) =>
+        !entry.exclude &&
+        config.importers.includes(entry.importerName) &&
+        entry.files.pdf
     ),
     (entry) => new Date(entry.metadata.date)
   );
@@ -68,8 +72,25 @@ async function main() {
   const coverHtml = ReactDOMServer.renderToStaticMarkup(
     <CoverPage entries={entries} css={css} />
   );
-  const coverPath = path.join(config.inDir, config.outFile);
+  const coverPath = path.join(config.inDir, "cover_page_tmp.pdf");
   await generatePdf(coverHtml, coverPath);
+
+  // Concat pages together
+  const pdfFiles = [
+    coverPath,
+    ...entries.map((entry) => path.join(config.inDir, entry.files.pdf!)),
+  ];
+  const outPath = path.join(config.inDir, config.outFile);
+  console.log(
+    "Concatenating",
+    pdfFiles.length,
+    "PDFs together into",
+    outPath,
+    "..."
+  );
+  const merger = new PDFMerger();
+  pdfFiles.forEach((file) => merger.add(file));
+  await merger.save(outPath);
 
   console.log("Done, exiting.");
 }
