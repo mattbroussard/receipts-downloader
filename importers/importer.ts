@@ -28,6 +28,7 @@ export interface ImporterResult {
 
 export interface Importer {
   readonly name: string;
+  readonly displayName: string;
   readonly params: gmail_v1.Params$Resource$Users$Messages$List;
 
   extractMetadataFromMessage(message: ImporterMessage): ImporterResult | null;

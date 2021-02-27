@@ -5,6 +5,7 @@ import { JSDOM } from "jsdom";
 
 export class GrubhubImporter implements Importer {
   name = "grubhub";
+  displayName = "GrubHub";
   params = {
     q: 'from:(orders@eat.grubhub.com) subject:("Your order from")',
   };

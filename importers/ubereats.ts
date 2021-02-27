@@ -5,6 +5,7 @@ import { JSDOM } from "jsdom";
 
 export class UberEatsImporter implements Importer {
   name = "ubereats";
+  displayName = "Uber Eats";
   params = {
     // Require "Delivery person tip" because Uber sends separate emails for the main order, and the
     // tip which charges separately. They are otherwise the same subject and template, so we only

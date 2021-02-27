@@ -5,6 +5,7 @@ import { JSDOM } from "jsdom";
 
 export class InstacartImporter implements Importer {
   name = "instacart";
+  displayName = "Instacart";
   params = {
     q: "from:(orders@instacart.com) subject:receipt",
   };

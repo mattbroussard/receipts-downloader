@@ -3,6 +3,7 @@ import { formatDateForFilename } from "../util";
 
 export class CaviarImporter implements Importer {
   name = "caviar";
+  displayName = "Caviar";
   params = {
     q:
       "from:(support@trycaviar.com) " +

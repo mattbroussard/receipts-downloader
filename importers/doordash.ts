@@ -3,6 +3,7 @@ import { formatDateForFilename } from "../util";
 
 export class DoordashImporter implements Importer {
   name = "doordash";
+  displayName = "DoorDash";
   params = {
     q: 'from:(no-reply@doordash.com) subject:("Order Confirmation")',
   };

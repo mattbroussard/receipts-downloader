@@ -2,6 +2,7 @@ import type { Importer, ImporterMessage } from "./importer";
 
 export class DummyImporter implements Importer {
   name = "dummy";
+  displayName = "Dummy Importer";
   params = {
     q: 'from:(no-reply@doordash.com) subject:("Order Confirmation")',
     maxResults: 1,

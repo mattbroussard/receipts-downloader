@@ -3,10 +3,11 @@ import inquirer from "inquirer";
 import { ALL_IMPORTERS } from "./importers/importer";
 import { promises as fs } from "fs";
 import path from "path";
-import { SummaryEntry } from "./download";
+import type { SummaryEntry } from "./download";
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import { generatePdf } from "./pdf";
+import { CoverPage } from "./cover_page";
 
 interface Config {
   inDir: string;
@@ -61,10 +62,11 @@ async function main() {
 
   // Render cover page
   console.log("Generating cover page PDF...");
+  const css = await fs.readFile(path.join(__dirname, "cover_page.css"), {
+    encoding: "utf8",
+  });
   const coverHtml = ReactDOMServer.renderToStaticMarkup(
-    <b>
-      <pre>{summaryStr}</pre>
-    </b>
+    <CoverPage entries={entries} css={css} />
   );
   const coverPath = path.join(config.inDir, config.outFile);
   await generatePdf(coverHtml, coverPath);
