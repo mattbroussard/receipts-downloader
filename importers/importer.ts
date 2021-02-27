@@ -37,7 +37,7 @@ export interface Importer {
 }
 
 export const ALL_IMPORTERS: Importer[] = [
-  new DummyImporter(),
+  // new DummyImporter(),
   new DoordashImporter(),
   new CaviarImporter(),
   new GrubhubImporter(),
