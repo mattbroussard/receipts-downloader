@@ -69,4 +69,36 @@ export class UberEatsImporter implements Importer {
       vendorName,
     };
   }
+
+  transformHTMLForPDF(message: ImporterMessage): string {
+    const frag = JSDOM.fragment(message.html);
+
+    // Some Amex cards have an Uber Eats benefit. Uber's receipts show a banner for this. For
+    // simplicity of reimbursement, we don't want this included in the output PDF.
+    const amexCells = Array.from(
+      frag.querySelectorAll<HTMLElement>("td.Uber18_text_p1.flag")
+    ).filter((td) => td.textContent?.indexOf("Amex Benefit") != -1);
+    if (amexCells.length == 0) {
+      return message.html;
+    }
+
+    const selector = _.chain(amexCells)
+      .map((td) => "td." + Array.from(td.classList).sort().join("."))
+      .uniq()
+      .value()
+      .join(", ");
+    if (!selector) {
+      return message.html;
+    }
+
+    const css = `
+      <style type="text/css">
+        ${selector} {
+          display: none;
+        }
+      </style>
+    `;
+
+    return message.html + css;
+  }
 }

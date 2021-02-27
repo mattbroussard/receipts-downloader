@@ -292,9 +292,14 @@ async function runImporterOnMessage(
   if (summaryEntry.files.pdf) {
     const fname = path.join(config.outDir, summaryEntry.files.pdf);
     console.log("Generating PDF", fname);
+
+    const transformFn =
+      importer.transformHTMLForPDF || ((msg: ImporterMessage) => msg.html);
+    const htmlForPdf = transformFn(importerMessage);
+
     await new Promise((resolve) =>
       pdf
-        .create(importerMessage.html, {
+        .create(htmlForPdf, {
           // TODO: figure out something better here
           // This looks ok, but is a weird non-standard PDF size
           // Can't figure out how to configure DPI, which seems to default 72 (but might be device dependent)

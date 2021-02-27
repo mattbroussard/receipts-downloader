@@ -30,6 +30,8 @@ export interface Importer {
   readonly params: gmail_v1.Params$Resource$Users$Messages$List;
 
   extractMetadataFromMessage(message: ImporterMessage): ImporterResult | null;
+
+  transformHTMLForPDF?: (message: ImporterMessage) => string;
 }
 
 export const ALL_IMPORTERS: Importer[] = [
