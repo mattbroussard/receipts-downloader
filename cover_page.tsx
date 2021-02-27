@@ -46,14 +46,20 @@ const EntriesTable: React.FunctionComponent<EntriesTableProps> = ({
 
   return (
     <table className="entries-table">
-      <thead></thead>
+      <thead>
+        <th>Date</th>
+        <th>Merchant</th>
+        <th>Amount</th>
+      </thead>
       <tbody>
         {entries.map((entry) => (
           <EntryRow entry={entry} key={entry.messageId} />
         ))}
         <tr className="total-row">
-          <td colSpan={2}>Total:</td>
-          <td>${total}</td>
+          <td colSpan={2} className="total-label">
+            Total:
+          </td>
+          <td className="amt total-amt">${total}</td>
         </tr>
       </tbody>
     </table>
@@ -73,14 +79,16 @@ const EntryRow: React.FunctionComponent<EntryRowProps> = ({ entry }) => {
 
   return (
     <tr className="entry-row">
-      <td>{moment(entry.metadata.date).format("MMMM D, YYYY")}</td>
-      <td>
+      <td className="date">
+        {moment(entry.metadata.date).format("MMMM D, YYYY")}
+      </td>
+      <td className="merchant">
         {importerDisplayName}{" "}
         {entry.metadata.vendorName && (
           <span className="vendor-name">({entry.metadata.vendorName})</span>
         )}
       </td>
-      <td>${entry.metadata.amt}</td>
+      <td className="amt">${entry.metadata.amt}</td>
     </tr>
   );
 };

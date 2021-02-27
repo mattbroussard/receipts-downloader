@@ -1,3 +1,59 @@
-#root {
-  background: red;
+body {
+  font-family: sans-serif;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.root {
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 100px;
+}
+
+.preface {
+  margin-bottom: 50px;
+  width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.entries-table {
+  border-spacing: 0;
+  border: 1px solid black;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.entries-table td,
+.entries-table th {
+  border: 1px solid black;
+  padding: 5px;
+}
+
+.entries-table th {
+  font-weight: 600;
+  text-align: left;
+  padding-right: 15px;
+}
+
+.entries-table td.total-label {
+  text-align: right;
+}
+
+.entries-table td.total-amt {
+  font-weight: bold;
+}
+
+.entries-table td.amt {
+  text-align: right;
+}
+
+.entries-table tr.entry-row td.date {
+  padding-right: 20px;
+}
+
+.entries-table tr.entry-row td.merchant {
+  min-width: 450px;
+  padding-right: 30px;
 }
