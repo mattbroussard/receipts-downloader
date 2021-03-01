@@ -60,7 +60,6 @@ function b64decode(
 
 async function askForConfig() {
   const importerNames = _.map(ALL_IMPORTERS, "name");
-  const outTypes = ["json", "html", "pdf", "txt"];
   const configAnswers = await inquirer.prompt<Config>([
     {
       type: "input",
@@ -90,8 +89,8 @@ async function askForConfig() {
     {
       type: "checkbox",
       name: "artifactTypes",
-      choices: outTypes,
-      default: outTypes,
+      choices: ["json", "html", "pdf", "txt"],
+      default: ["pdf"],
       message: "Output Types:",
     },
   ]);
