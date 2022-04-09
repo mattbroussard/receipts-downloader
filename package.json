@@ -22,7 +22,7 @@
     "jsdom": "^16.4.0",
     "lodash": "^4.17.21",
     "mkdirp": "^1.0.4",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "pdf-merger-js": "^3.1.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
