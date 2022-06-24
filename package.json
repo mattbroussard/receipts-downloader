@@ -19,7 +19,7 @@
     "html-pdf": "^2.2.0",
     "inquirer": "^7.3.3",
     "inquirer-datepicker-prompt": "^0.4.2",
-    "jsdom": "^16.4.0",
+    "jsdom": "^16.5.0",
     "lodash": "^4.17.21",
     "mkdirp": "^1.0.4",
     "moment": "^2.29.1",
